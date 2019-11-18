@@ -29,8 +29,6 @@ app.post("/usuarios", (req, res) => {
     }
 });
 
-
-
 app.put("/usuarios/:id", (req, res) => {
 
     let id = req.params.id;
@@ -46,3 +44,4 @@ app.delete("/usuarios/", (req, res) => {
     .listen(process.env.PORT, () => {
         console.log(`escuchando en puerto ${process.env.PORT}`);
     });
+a
