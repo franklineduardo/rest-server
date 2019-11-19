@@ -1,46 +1,20 @@
+const express = require("express");
+const mongoose = require("mongoose");
 require("./config/config");
 
-const express = require("express");
 const app = express();
-const bodyParser = require('body-parser')
 
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(require("../routes/users/user"));
 
-app.use(bodyParser.json())
+mongoose.connect('mongodb://localhost:27017/cafe', {
+    useCreateIndex: true,
+    useNewUrlParser: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true,
+    promiseLibrary: global.Promise
 
-app.get("/usuarios", (req, res) => {
-    res.json("get usuarios");
-})
-
-app.post("/usuarios", (req, res) => {
-
-    let body = req.body;
-
-    if (body.name === undefined) {
-        res.status(400).json({
-            ok: "False",
-            message: "el nombre es necesario"
-        })
-
-    } else {
-        res.json({
-            Person: body
-        })
-    }
 });
 
-app.put("/usuarios/:id", (req, res) => {
-
-    let id = req.params.id;
-
-    res.json({
-        id
-    });
-})
-
-app.delete("/usuarios/", (req, res) => {
-        res.json("delete usuarios");
-    })
-    .listen(process.env.PORT, () => {
-        console.log(`escuchando en puerto ${process.env.PORT}`);
-    });
+app.listen(process.env.PORT, () => {
+    console.log(`escuchando en puerto ${process.env.PORT}`);
+});
