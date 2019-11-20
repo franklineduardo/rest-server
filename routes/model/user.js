@@ -3,11 +3,6 @@ const unique = require("mongoose-unique-validator");
 
 const Schema = mongoose.Schema;
 
-const validRols = {
-    rols: ["ADMIN_ROLE", "USER_ROLE"],
-    message: "error"
-}
-
 const userSchema = new Schema({
     name: {
         type: String,
@@ -15,7 +10,7 @@ const userSchema = new Schema({
     },
     password: {
         type: String,
-        required: true
+        required: true,
     },
     email: {
         type: String,
@@ -28,7 +23,6 @@ const userSchema = new Schema({
     role: {
         type: String,
         default: "USER_ROLE",
-        Enum: validRols
     },
     status: {
         type: Boolean,
@@ -40,6 +34,14 @@ const userSchema = new Schema({
 
     }
 });
+
+userSchema.methods.toJSON = function() {
+    let user = this;
+    let userObject = user.toObject();
+    delete userObject.password;
+
+    return userObject;
+}
 
 userSchema.plugin(unique, { message: "the email will be unique" })
 

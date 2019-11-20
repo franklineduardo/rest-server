@@ -1,6 +1,9 @@
 const express = require("express");
 const bodyParser = require('body-parser')
 const User = require("../model/user")
+const bcrypt = require("bcrypt");
+const _ = require("underscore");
+
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -8,7 +11,32 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.get("/user", (req, res) => {
-    res.json("get user local");
+
+    let since = req.query.since || 0;
+    since = Number(since);
+
+    let limit = req.query.limit || 5;
+    limit = Number(limit);
+
+    User.find({})
+        .skip(since)
+        .limit(limit)
+        .exec((err, users) => {
+            if (err) {
+                res.status(400).json({
+                    ok: false,
+                    err
+                });
+            }
+
+            User.count({}, (err, count) => {
+                res.json({
+                    users,
+                    count
+                });
+            })
+
+        })
 })
 
 app.post("/user", (req, res) => {
@@ -17,7 +45,7 @@ app.post("/user", (req, res) => {
 
     let user = new User({
         name: body.name,
-        password: body.password,
+        password: bcrypt.hashSync(body.password, 10),
         email: body.email,
         role: body.role
     })
@@ -40,15 +68,43 @@ app.post("/user", (req, res) => {
 app.put("/user/:id", (req, res) => {
 
     let id = req.params.id;
+    let body = _.pick(req.body, ["name", "email", "img", "role", "status"]);
 
-    res.json({
-        id
-    });
+    User.findByIdAndUpdate(id, body, { new: true }, (err, userDB) => {
+        if (err) {
+            res.status(400).json({
+                ok: false,
+                err
+            })
+        } else {
+            res.json({
+                ok: true,
+                userDB
+            });
+        }
+
+    })
+
 })
 
+app.delete("/user/:id", (req, res) => {
 
-app.delete("/user/", (req, res) => {
-    res.json("delete user");
+    let id = req.params.id
+    User.findByIdAndRemove(id, (err, userDeleted) => {
+        if (userDeleted === null) {
+            res.status(400).json({
+                ok: false,
+                err: {
+                    message: "user not found"
+                }
+            });
+        } else {
+            res.json({
+                ok: true,
+                user: userDeleted
+            })
+        };
+    })
 })
 
 module.exports = app;

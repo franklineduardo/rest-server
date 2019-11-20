@@ -6,6 +6,9 @@ const app = express();
 
 app.use(require("../routes/users/user"));
 
+app.use(require("../routes/index"));
+
+
 mongoose.connect('mongodb://localhost:27017/cafe', {
     useCreateIndex: true,
     useNewUrlParser: true,
