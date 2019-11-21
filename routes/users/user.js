@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 const User = require("../model/user")
 const bcrypt = require("bcrypt");
 const _ = require("underscore");
+const { validateToken, adminRole } = require("../../server/middleware/autenticacion");
 
 const app = express();
 
@@ -10,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use(bodyParser.json())
 
-app.get("/user", (req, res) => {
+app.get("/user", validateToken, (req, res) => {
 
     let since = req.query.since || 0;
     since = Number(since);
@@ -29,7 +30,7 @@ app.get("/user", (req, res) => {
                 });
             }
 
-            User.count({}, (err, count) => {
+            User.countDocuments({}, (err, count) => {
                 res.json({
                     users,
                     count
@@ -39,7 +40,7 @@ app.get("/user", (req, res) => {
         })
 })
 
-app.post("/user", (req, res) => {
+app.post("/user", [validateToken, adminRole], (req, res) => {
 
     let body = req.body;
 
@@ -65,7 +66,7 @@ app.post("/user", (req, res) => {
     })
 });
 
-app.put("/user/:id", (req, res) => {
+app.put("/user/:id", [validateToken, adminRole], (req, res) => {
 
     let id = req.params.id;
     let body = _.pick(req.body, ["name", "email", "img", "role", "status"]);
@@ -87,7 +88,7 @@ app.put("/user/:id", (req, res) => {
 
 })
 
-app.delete("/user/:id", (req, res) => {
+app.delete("/user/:id", [validateToken, adminRole], (req, res) => {
 
     let id = req.params.id
     User.findByIdAndRemove(id, (err, userDeleted) => {

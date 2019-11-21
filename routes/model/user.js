@@ -3,6 +3,8 @@ const unique = require("mongoose-unique-validator");
 
 const Schema = mongoose.Schema;
 
+let validRoles = ["ADMIN_ROLE", "USER_ROLE"]
+
 const userSchema = new Schema({
     name: {
         type: String,
@@ -23,6 +25,7 @@ const userSchema = new Schema({
     role: {
         type: String,
         default: "USER_ROLE",
+        enum: validRoles
     },
     status: {
         type: Boolean,
